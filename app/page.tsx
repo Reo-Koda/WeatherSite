@@ -5,19 +5,21 @@ import styles from "./page.module.css";
 import { WeatherResponse } from "./types/weather";
 
 export default function Home() {
-  const WeatherAPIKEY = process.env.NEXT_PUBLIC_OPEN_WEATHER_MAP_KEY;
+  const WeatherAPIKEY = process.env.NEXT_PUBLIC_OPEN_WEATHER_MAP_KEY!;
 
   const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!WeatherAPIKEY) return setErrorMsg("APIキー未設定");
+
     const fetchWeather = async () => {
       const lat = 34.725385;
       const lon = 137.718008;
   
       try {
-        const res = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${ lat }&lon=${ lon }&appid=${ WeatherAPIKEY }&lang=ja&units=metric`);
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${ lat }&lon=${ lon }&appid=${ WeatherAPIKEY }&lang=ja&units=metric`);
   
         const data = await res.json();
         if (res.ok) {
@@ -31,7 +33,7 @@ export default function Home() {
     };
 
     fetchWeather();
-  }, []);
+  }, [WeatherAPIKEY]);
 
   useEffect(() => {
     if (!weatherData) return;
