@@ -1,52 +1,59 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { WeatherResponse } from "./types/weather";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const WeatherAPIKEY = process.env.NEXT_PUBLIC_OPEN_WEATHER_MAP_KEY;
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-        <h1>Test Centense</h1>
-      </main>
-    </div>
+  const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      const lat = 34.725385;
+      const lon = 137.718008;
+  
+      try {
+        const res = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${ lat }&lon=${ lon }&appid=${ WeatherAPIKEY }&lang=ja&units=metric`);
+  
+        const data = await res.json();
+        if (res.ok) {
+          setWeatherData(data);
+        } else {
+          setErrorMsg(`エラー: ${ data.message  }`);
+        }
+      } catch (error: any) {
+        setErrorMsg(`通信エラー: ${ error.message  }`);
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
+  useEffect(() => {
+    if (!weatherData) return;
+    setImgSrc(`https://openweathermap.org/img/wn/${ weatherData.weather[0].icon }@2x.png`);
+  }, [weatherData]);
+
+  return (
+    <>
+    <header className={ styles.title }>
+      <h1>静岡大学浜松キャンパス<br />天気予報</h1>
+    </header>
+    { errorMsg && <p>{ errorMsg }</p> }
+    <main>
+      <h3>静岡大学浜松キャンパス</h3>
+      { weatherData ? <p>{ weatherData.weather[0].main }</p> : <p>Now Loading ...</p> }
+      { weatherData ? <p>{ weatherData.weather[0].description }</p> : <p>Now Loading ...</p> }
+
+      { imgSrc && <Image src={ imgSrc } alt={ imgSrc } width={ 40 } height={ 40 }/> }
+      
+      <h3>浜松駅</h3>
+
+    </main>
+    </>
   );
 }
