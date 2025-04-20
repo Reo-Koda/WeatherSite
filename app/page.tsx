@@ -45,6 +45,7 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+        <h1>Test Centense</h1>
       </main>
     </div>
   );
