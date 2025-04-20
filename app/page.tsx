@@ -27,8 +27,10 @@ export default function Home() {
         } else {
           setErrorMsg(`エラー: ${ data.message  }`);
         }
-      } catch (error: any) {
-        setErrorMsg(`通信エラー: ${ error.message  }`);
+      } catch (error: unknown) {
+        // any を使わずにエラーメッセージを取り出す
+        const msg = error instanceof Error ? error.message : String(error);
+        setErrorMsg(`通信エラー: ${msg}`);
       }
     };
 
