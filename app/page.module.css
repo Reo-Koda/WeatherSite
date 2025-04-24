@@ -1,3 +1,34 @@
 .title {
   text-align: center;
 }
+
+.mainContainer {
+  padding: 0 10px;
+}
+
+.imgBox {
+  width: 40px;
+  height: 40px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.timeline {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 10px;
+  border-top: 5px solid black;
+  border-bottom: 5px solid black;
+}
+
+.timeBlock {
+  background: #fafafa;
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-width: 100px;
+  text-align: center;
+}
