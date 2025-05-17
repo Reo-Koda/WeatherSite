@@ -19,7 +19,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [])
+  }, [transJST])
 
   useEffect(() => {
     if (!WeatherAPIKEY) return setErrorMsg("APIキー未設定");
@@ -115,7 +115,7 @@ export default function Home() {
         { weatherData ?
           Array.from({ length: 9 }, (_, i) => {
             const data = weatherData.list[listCnt + i];
-            let imgIcon = data.weather[0].icon;
+            const imgIcon = data.weather[0].icon;
             // 後で条件を正す
             if (imgIcon.includes('d')
               && weatherData.city.sunrise > data.dt && weatherData.city.sunset < data.dt) {
