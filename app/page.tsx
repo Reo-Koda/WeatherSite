@@ -147,7 +147,7 @@ export default function Home() {
         }
       </div>
       <h4>外出の際の注意</h4>
-      <button onClick={ getAdvice }>{ adviceLoading ? '取得中...' : 'アドバイスを取得' }</button>
+      <button onClick={ getAdvice }>{ adviceLoading ? 'アドバイスを取得中...' : 'アドバイスを表示する' }</button>
       <p>{ advice }</p>
       {/* { weatherData ? <p>{ JSON.stringify(weatherData, null, 1) }</p> : <p>Now Loading ...</p> } */}
       
