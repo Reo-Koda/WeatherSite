@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json(completion);
 	} catch (err: unknown) {
     console.error('API/advice error:', err);
-	const message = err instanceof Error ? err.message : String(err);
+	// const message = err instanceof Error ? err.message : String(err);
+	const message = err instanceof Error ? err.stack : String(err);
     return NextResponse.json(
       { error: message },
       { status: 500 }
