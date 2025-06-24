@@ -29,10 +29,11 @@ export async function POST(req: NextRequest) {
 		});
 		
 		return NextResponse.json(completion);
-	} catch (err: any) {
+	} catch (err: unknown) {
     console.error('API/advice error:', err);
+	const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: err.message || 'Unknown error' },
+      { error: message },
       { status: 500 }
     );
   }
