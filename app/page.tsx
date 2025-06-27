@@ -7,12 +7,15 @@ import { ForecastResponse } from "./types/forecast";
 export default function Home() {
   const WeatherAPIKEY = process.env.NEXT_PUBLIC_OPEN_WEATHER_MAP_KEY!; // ! は該当の変数にnullやundefindedが入らないことを示している
 
-  const [weatherData, setWeatherData] = useState<ForecastResponse | null>(null);
+  const [weatherData, setWeatherData] = useState<ForecastResponse[] >([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [advice, setAdvice] = useState('');
 
   const transJST = 60*60*9; // 9時間をUTCに足し日本標準時に変える
   const [nowTime, setNowTime] = useState<number | null>(null);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setNowTime(Math.floor(Date.now() / 1000) + transJST);
@@ -24,26 +27,28 @@ export default function Home() {
   useEffect(() => {
     if (!WeatherAPIKEY) return setErrorMsg("APIキー未設定");
 
-    const fetchWeather = async () => {
-      const lat = 34.725385;
-      const lon = 137.718008;
-  
+    const fetchWeather = async (lat:number, lon:number) => {
+      setIsLoading(true);
       try {
         const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${ lat }&lon=${ lon }&appid=${ WeatherAPIKEY }&lang=ja&units=metric`);
-  
+        
         const data = await res.json();
+        
         if (res.ok) {
-          setWeatherData(data);
+          setWeatherData(prevArray => [...prevArray,data]);
         } else {
           setErrorMsg(`エラー: ${ data.message  }`);
         }
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error);
         setErrorMsg(`通信エラー: ${msg}`);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchWeather();
+    fetchWeather(34.725385,137.718008); /*静岡大学浜松キャンパス*/ 
+    fetchWeather(34.703862,137.735160);  /*浜松駅*/ 
     const id = setInterval(fetchWeather, 60 * 1000);
     return () => clearInterval(id);
   }, [WeatherAPIKEY]);
@@ -51,7 +56,7 @@ export default function Home() {
   const permissibleTime = 60*60*1.5;
   const listCnt =
     weatherData && nowTime
-      ? weatherData.list.findIndex(item => item.dt + permissibleTime > nowTime)
+      ? weatherData[0].list.findIndex(item => item.dt + permissibleTime > nowTime)
       : 0;
   
   const formatUnixTime = (unixSeconds: number) => {
@@ -66,16 +71,17 @@ export default function Home() {
     });
   };
   
-  const [adviceLoading, setAdviceLoading] = useState(false);
-  const getAdvice = async () => {
-    if (!weatherData) return;
+  
+  const getAdvice = async (index:number) => {
+    if (weatherData.length === 0) return;
 
-    setAdviceLoading(true);
+    setIsLoading(true);
+
     try {
       const res = await fetch('/api/advice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ weatherData }),
+        body: JSON.stringify( weatherData[index] ),
       });
 
       if (!res.ok) {
@@ -93,7 +99,7 @@ export default function Home() {
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : String(err));
     } finally {
-      setAdviceLoading(false);
+      setIsLoading(false);
     }
   }
   
@@ -105,23 +111,23 @@ export default function Home() {
     { errorMsg && <p>{ errorMsg }</p> }
     <main className={ styles.mainContainer }>
       <h3>静岡大学浜松キャンパス</h3>
-      { weatherData &&
+      { weatherData[0] &&
         <>
-        <p>日の出時刻: { formatUnixTime(weatherData.city.sunrise) } / 日の入り時刻: { formatUnixTime(weatherData.city.sunset) }</p>
+        <p>日の出時刻: { formatUnixTime(weatherData[0].city.sunrise) } / 日の入り時刻: { formatUnixTime(weatherData[0].city.sunset) }</p>
         {/* <p>日の出時刻: { weatherData.city.sunrise } / 日の入り時刻: { weatherData.city.sunset }</p> */}
         </>
       }
       <div className={ styles.timeline }>
-        { weatherData ?
+        { weatherData[0] ?
           Array.from({ length: 9 }, (_, i) => {
-            const data = weatherData.list[listCnt + i];
+            const data = weatherData[0].list[listCnt + i];
             const imgIcon = data.weather[0].icon;
             // 後で条件を正す
             if (imgIcon.includes('d')
-              && weatherData.city.sunrise > data.dt && weatherData.city.sunset < data.dt) {
+              && weatherData[0].city.sunrise > data.dt && weatherData[0].city.sunset < data.dt) {
               imgIcon.replace('d', 'n');
             } else if (imgIcon.includes('n')
-              && (weatherData.city.sunrise < data.dt || weatherData.city.sunset > data.dt)) {
+              && (weatherData[0].city.sunrise < data.dt || weatherData[0].city.sunset > data.dt)) {
               imgIcon.replace('n', 'd');
             }
             const imgSrc = `https://openweathermap.org/img/wn/${ imgIcon }@2x.png`;
@@ -147,11 +153,56 @@ export default function Home() {
         }
       </div>
       <h4>外出の際の注意</h4>
-      <button onClick={ getAdvice }>{ adviceLoading ? 'アドバイスを取得中...' : 'アドバイスを表示する' }</button>
+      <button onClick={() => getAdvice(0) }>{ isLoading ? 'アドバイスを取得中...' : 'アドバイスを表示する' }</button>
       <p>{ advice }</p>
       {/* { weatherData ? <p>{ JSON.stringify(weatherData, null, 1) }</p> : <p>Now Loading ...</p> } */}
       
       <h3>浜松駅</h3>
+      { weatherData[1] &&
+        <>
+        <p>日の出時刻: { formatUnixTime(weatherData[1].city.sunrise) } / 日の入り時刻: { formatUnixTime(weatherData[1].city.sunset) }</p>
+        {/* <p>日の出時刻: { weatherData.city.sunrise } / 日の入り時刻: { weatherData.city.sunset }</p> */}
+        </>
+      }
+      <div className={ styles.timeline }>
+        { weatherData[1] ?
+          Array.from({ length: 9 }, (_, i) => {
+            const data = weatherData[1].list[listCnt + i];
+            const imgIcon = data.weather[0].icon;
+            // 後で条件を正す
+            if (imgIcon.includes('d')
+              && weatherData[1].city.sunrise > data.dt && weatherData[1].city.sunset < data.dt) {
+              imgIcon.replace('d', 'n');
+            } else if (imgIcon.includes('n')
+              && (weatherData[1].city.sunrise < data.dt || weatherData[1].city.sunset > data.dt)) {
+              imgIcon.replace('n', 'd');
+            }
+            const imgSrc = `https://openweathermap.org/img/wn/${ imgIcon }@2x.png`;
+            return (
+              <div className={ styles.timeBlock } key={ i }>
+                <div>{ data.dt_txt }</div>
+                <div>{ data.weather[0].description }</div>
+                <div>{ imgIcon }</div>
+                <div className={ styles.imgBox }>
+                  { imgSrc && <Image src={ imgSrc } alt={ imgSrc } width={ 40 } height={ 40 } /> }
+                </div>
+                <div>体感温度 { data.main.feels_like }℃</div>
+                <div>湿度 { data.main.humidity }%</div>
+                <div>降水確率 { data.pop * 100 }%</div>
+                <div>風速 { data.wind.speed }m/s</div>
+                <div>最大瞬間風速 { data.wind.gust }m/s</div>
+                <div>気圧 { data.main.pressure }hPa</div>
+              </div>
+            );
+          })
+        :
+          <p>Now Loading ...</p>
+        }
+      </div>
+      <h4>外出の際の注意</h4>
+      <button onClick={ () => getAdvice(1) }>{ isLoading ? 'アドバイスを取得中...' : 'アドバイスを表示する' }</button>
+      <p>{ advice }</p>
+      {/* { weatherData ? <p>{ JSON.stringify(weatherData, null, 1) }</p> : <p>Now Loading ...</p> } */}
 
     </main>
     </>
