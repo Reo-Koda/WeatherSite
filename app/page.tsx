@@ -67,7 +67,7 @@ export default function Home() {
     updateAll();
     const id = setInterval(updateAll, MINUITE * SECOUND);
     return () => clearInterval(id);
-  }, [WeatherAPIKEY]);
+  }, [WeatherAPIKEY, locations]);
 
   // 現在の時刻が3時間おきに表示される予報時刻のうち、近い時刻から天気予報を表示させる
   const permissibleTime = MINUITE*HOUR*TO_BORDER;
@@ -147,7 +147,7 @@ export default function Home() {
             <div className={ styles.timeline }>
               { Array.from({ length: 9 }, (_, i) => {
                 const data = weatherData[index].list[listCnt(index) + i];
-                var imgIcon = data.weather[WEATHER_TOP].icon;
+                let imgIcon = data.weather[WEATHER_TOP].icon;
 
                 // 天気アイコンの修正
                 const isDay = formatUnixTime(weatherData[index].city.sunrise + TRANS_JST) < formatUnixTime(data.dt) && formatUnixTime(weatherData[index].city.sunset + TRANS_JST) > formatUnixTime(data.dt)
