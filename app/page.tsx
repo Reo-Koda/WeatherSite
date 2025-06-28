@@ -128,6 +128,13 @@ export default function Home() {
     });
     }
   }
+
+  // 自動でアドバイスを表示させるための処理
+  // useEffect(() => {
+  //   if (weatherData.length === locations.length) {
+  //     locations.forEach((_, idx) => getAdvice(idx));
+  //   }
+  // }, [weatherData, locations.length]);
   
   return (
     <>
@@ -181,6 +188,7 @@ export default function Home() {
               :
               <p>{ locations[index].advice }</p>
             }
+            {/* <p>{ locations[index].advice ? locations[index].advice : `アドバイスを取得中...` }</p> */}
             </>
           }
         </section>
