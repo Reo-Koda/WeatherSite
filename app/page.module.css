@@ -33,3 +33,13 @@
   min-width: 100px;
   text-align: center;
 }
+
+.adviceContainer {
+  margin: 0.5rem 0;
+}
+
+.footer {
+  background-color: black;
+  color: white;
+  text-align: center;
+}

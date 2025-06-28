@@ -183,18 +183,24 @@ export default function Home() {
               }) }
             </div>
             <h4>外出の際の注意</h4>
-            { locations[index].advice === "" ?
-              <button onClick={() => getAdvice(index) }>{ adviceLoading[index] ? `アドバイスを取得中...` : `アドバイスを表示する` }</button>
-              :
-              <p>{ locations[index].advice }</p>
-            }
-            {/* <p>{ locations[index].advice ? locations[index].advice : `アドバイスを取得中...` }</p> */}
+            <div className={ styles.adviceContainer }>
+              { locations[index].advice === "" ?
+                <button onClick={() => getAdvice(index) }>{ adviceLoading[index] ? `アドバイスを取得中...` : `アドバイスを表示する` }</button>
+                :
+                <p>{ locations[index].advice }</p>
+              }
+              {/* <p>{ locations[index].advice ? locations[index].advice : `アドバイスを取得中...` }</p> */}
+            </div>
             </>
           }
         </section>
       )) }
 
     </main>
+    <footer className={ styles.footer }>
+      <p>静大天気予報アプリ</p>
+      <p>&copy; 2025 WithRice</p>
+    </footer>
     </>
   );
 }
