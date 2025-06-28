@@ -5,7 +5,8 @@ import { ForecastResponse } from "../../types/forecast";
 export async function POST(req: NextRequest) {
 	try {
 		const weatherData: ForecastResponse = await req.json();
-		const AIAPIKEY = process.env.OPEN_AI_API_KEY!; // サーバー専用のkeyなのでNEXT_PUBLIC_は付けない
+		const AIAPIKEY = process.env.OPENAI_API_KEY!; // サーバー専用のkeyなのでNEXT_PUBLIC_は付けない
+		if (!AIAPIKEY) throw new Error("advice_KEY が認識できません");
 		const openai = new OpenAI({
 			apiKey: AIAPIKEY,
 		});
