@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { ForecastResponse } from "./types/forecast";
-import { Location } from "./types/location"
+import { Location } from "./types/location";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSun } from "@fortawesome/free-solid-svg-icons";
+import { faMoon } from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
   const WeatherAPIKEY = process.env.NEXT_PUBLIC_OPEN_WEATHER_MAP_KEY!; // ! は該当の変数にnullやundefindedが入らないことを示している
@@ -23,6 +26,18 @@ export default function Home() {
     { name: "静岡大学浜松キャンパス", lat: 34.725385, lon: 137.718008, advice: "" },
     { name: "浜松駅",                lat: 34.703862, lon: 137.735160, advice: "" },
   ]);
+
+  //月、日、曜日の表示
+  const formatDate = (unixSeconds: number) => {
+  const date = new Date(unixSeconds * SECOUND);
+    return date.toLocaleDateString("ja-JP", {
+      weekday: "long",  
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: "UTC"
+    });
+  };
 
   const [weatherData, setWeatherData] = useState<ForecastResponse[]>([]);
   const [adviceLoading, setAdviceLoading] = useState<boolean[]>([false, false]);
@@ -139,8 +154,13 @@ export default function Home() {
   return (
     <>
     <header className={ styles.title }>
-      <h1>静岡大学浜松キャンパス<br />天気予報</h1>
-      <p>現在の時刻: { nowTime && formatUnixTime(nowTime) }</p>
+      <h1 className={ styles.titletext}>静岡大学浜松キャンパス<br />天気予報</h1>
+      { nowTime && (
+      <>
+      <p>{ formatDate(nowTime) }</p>
+      <p>現在の時刻: { formatUnixTime(nowTime) }</p>
+      </>
+      )}
     </header>
     { errorMsg && <p>{ errorMsg }</p> }
     <main className={ styles.mainContainer }>
@@ -149,7 +169,12 @@ export default function Home() {
           <h3>{ city.name }</h3>
           { weatherData[index] &&
             <>
-            <p>日の出時刻: { formatUnixTime(weatherData[index].city.sunrise + TRANS_JST) } / 日の入り時刻: { formatUnixTime(weatherData[index].city.sunset + TRANS_JST) }</p>
+            <p>
+            <FontAwesomeIcon icon={faSun} style={{ marginRight: "6px", color: "#FFA500" }} />
+            日の出時刻: { formatUnixTime(weatherData[index].city.sunrise + TRANS_JST) } / 
+            <FontAwesomeIcon icon={faMoon} style={{ margin: "0 6px", color: "#4169E1" }} />
+            日の入り時刻: { formatUnixTime(weatherData[index].city.sunset + TRANS_JST) }
+            </p>
             
             <div className={ styles.timeline }>
               { Array.from({ length: 9 }, (_, i) => {
@@ -165,19 +190,34 @@ export default function Home() {
                 }
                 
                 const imgSrc = `https://openweathermap.org/img/wn/${ imgIcon }@2x.png`;
+                // 晴という字がつけば赤色に雨という字がつけば青色に
+                const weatherDesc = data.weather[WEATHER_TOP].description;
+                const descColor = weatherDesc.includes("晴") ? "#f39c12" : weatherDesc.includes("雨") ? "#3498db" : "#555";
+                // 30℃以上なら赤、10℃以下なら青で表示
                 return (
                   <div className={ styles.timeBlock } key={ i }>
-                    <div>{ data.dt_txt }</div>
-                    <div>{ data.weather[WEATHER_TOP].description }</div>
+                    <div>{ data.dt_txt.slice(0, 4)}年 <br /> { data.dt_txt.slice(5, 16) }</div>
+                    <div className={ styles.titletext } style={{ color: descColor }}>{ weatherDesc }</div>
                     <div className={ styles.imgBox }>
                       { imgSrc && <Image src={ imgSrc } alt={ imgSrc } width={ IMG_SIZE } height={ IMG_SIZE } /> }
                     </div>
-                    <div>体感温度 { data.main.feels_like }℃</div>
-                    <div>湿度 { data.main.humidity }%</div>
-                    <div>降水確率 { data.pop * TO_PERCENT }%</div>
-                    <div>風速 { data.wind.speed }m/s</div>
-                    <div>最大瞬間風速 { data.wind.gust }m/s</div>
-                    <div>気圧 { data.main.pressure }hPa</div>
+                    <div><div className={ styles.titletext }>体感温度</div>
+                    <span style={{
+                          color:
+                          data.main.feels_like >= 30 ? "#e74c3c" :
+                          data.main.feels_like <= 10 ? "#2980b9" :
+                          "black"
+                    }}>
+                    { data.main.feels_like }
+                    </span>℃</div>
+      
+                    <div><div className={ styles.titletext }>湿度</div> { data.main.humidity }%</div>
+                    <div><div className={ styles.titletext }>降水確率</div>  { data.pop * TO_PERCENT }%</div>
+                    <div><div className={ styles.titletext }>風速</div>  { data.wind.speed }m/s</div>
+                    <div><div className={ styles.titletext }>最大瞬間風速</div>  { data.wind.gust }m/s</div>
+                    <div><div className={ styles.titletext }>気圧</div>  { data.main.pressure }hPa</div>
+                  
+                  
                   </div>
                 );
               }) }
