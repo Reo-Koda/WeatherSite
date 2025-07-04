@@ -51,6 +51,30 @@
   margin: 0.5rem 0;
 }
 
+.adviceContainer button {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  text-decoration: none;
+}
+
+.adviceContainer button:hover {
+  background-color: #eaeaea;
+  border-color: #ccc;
+}
+
+.adviceContainer button:active {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+}
+
 .footer {
   background-color: black;
   color: white;
