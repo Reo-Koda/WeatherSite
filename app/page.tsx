@@ -201,7 +201,7 @@ export default function Home() {
                     <div className={ styles.imgBox }>
                       { imgSrc && <Image src={ imgSrc } alt={ imgSrc } width={ IMG_SIZE } height={ IMG_SIZE } /> }
                     </div>
-                    <div><div className={ styles.titletext }>体感温度</div>
+                    <div><p className={ styles.titletext }>体感温度</p>
                     <span style={{
                           color:
                           data.main.feels_like >= 30 ? "#e74c3c" :
@@ -211,11 +211,11 @@ export default function Home() {
                     { data.main.feels_like }
                     </span>℃</div>
       
-                    <div><div className={ styles.titletext }>湿度</div> { data.main.humidity }%</div>
-                    <div><div className={ styles.titletext }>降水確率</div>  { data.pop * TO_PERCENT }%</div>
-                    <div><div className={ styles.titletext }>風速</div>  { data.wind.speed }m/s</div>
-                    <div><div className={ styles.titletext }>最大瞬間風速</div>  { data.wind.gust }m/s</div>
-                    <div><div className={ styles.titletext }>気圧</div>  { data.main.pressure }hPa</div>
+                    <div><p className={ styles.titletext }>湿度</p> { data.main.humidity }%</div>
+                    <div><p className={ styles.titletext }>降水確率</p>  { data.pop * TO_PERCENT }%</div>
+                    <div><p className={ styles.titletext }>風速</p>  { data.wind.speed }m/s</div>
+                    <div><p className={ styles.titletext }>最大瞬間風速</p>  { data.wind.gust }m/s</div>
+                    <div><p className={ styles.titletext }>気圧</p>  { data.main.pressure }hPa</div>
                   
                   
                   </div>
@@ -238,7 +238,8 @@ export default function Home() {
 
     </main>
     <footer className={ styles.footer }>
-      <p>静大天気予報アプリ</p>
+      <p>静大浜松キャンパス天気予報</p>
+      <a href="https://www.shizuoka.ac.jp/">静岡大学</a>
       <p>&copy; 2025 WithRice</p>
     </footer>
     </>
