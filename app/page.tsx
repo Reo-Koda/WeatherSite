@@ -225,7 +225,9 @@ export default function Home() {
             <h4>外出の際の注意</h4>
             <div className={ styles.adviceContainer }>
               { locations[index].advice === "" ?
-                <button onClick={() => getAdvice(index) }>{ adviceLoading[index] ? `アドバイスを取得中...` : `アドバイスを表示する` }</button>
+                <button onClick={() => { if (!adviceLoading[index]) getAdvice(index); }} disabled={adviceLoading[index]}>
+                  { adviceLoading[index] ? `アドバイスを取得中...` : `アドバイスを表示する` }
+                </button>
                 :
                 <p>{ locations[index].advice }</p>
               }
